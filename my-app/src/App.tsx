@@ -8,13 +8,12 @@ import HomeTab from './components/HomeTab';
 import AddTab from './components/AddTab';
 import ListTab from './components/ListTab';
 
-// 🗺️ 地図のアイコン設定（これは全体で必要）
+// 🗺️ 地図のアイコン設定
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 const DefaultIcon = L.icon({ iconUrl: icon, shadowUrl: iconShadow, iconSize: [25, 41], iconAnchor: [12, 41] });
 L.Marker.prototype.options.icon = DefaultIcon;
 
-// 💡 ほかのファイルでも使えるように export する
 export interface Cafe {
   id: number;
   name: string;
@@ -30,10 +29,15 @@ export interface Cafe {
 }
 
 function App() {
-  // アプリ全体のステート（誰がログインしてるか、データ、どのタブを開いてるか）
   const [user, setUser] = useState<any>(null);
+  
+  // 🌟 追加・変更したステート
   const [usernameInput, setUsernameInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
+  const [passwordConfirmInput, setPasswordConfirmInput] = useState(''); // 再確認用パスワード
+  const [isSignUpMode, setIsSignUpMode] = useState(false); // ログインか新規登録かの切り替え
+  const [errorMessage, setErrorMessage] = useState<string | null>(null); // エラーメッセージ用
+  
   const [activeTab, setActiveTab] = useState<'list' | 'home' | 'add'>('home');
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [cafes, setCafes] = useState<Cafe[]>([]);
@@ -53,18 +57,33 @@ function App() {
 
   const getDummyEmail = (name: string) => `${name}@dummy-cafeteria.com`;
 
+  // 🌟 新規登録の処理（alertをエラーポップアップに変更、パスワード確認追加）
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!usernameInput || !passwordInput) return alert('ユーザー名とパスワードを入力してください');
-    const { error } = await supabase.auth.signUp({ email: getDummyEmail(usernameInput), password: passwordInput, options: { data: { display_name: usernameInput } } });
-    if (error) alert('登録エラー: ' + error.message); else checkUser();
+    if (!usernameInput || !passwordInput || !passwordConfirmInput) return setErrorMessage('すべての項目を入力してください');
+    if (passwordInput !== passwordConfirmInput) return setErrorMessage('パスワードが一致しません');
+    if (passwordInput.length < 6) return setErrorMessage('パスワードは6文字以上で入力してください');
+
+    const { error } = await supabase.auth.signUp({ 
+      email: getDummyEmail(usernameInput), 
+      password: passwordInput, 
+      options: { data: { display_name: usernameInput } } 
+    });
+    if (error) setErrorMessage('登録エラー: ' + error.message); 
+    else checkUser();
   };
 
+  // 🌟 ログインの処理（alertをエラーポップアップに変更）
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!usernameInput || !passwordInput) return alert('入力してください');
-    const { error } = await supabase.auth.signInWithPassword({ email: getDummyEmail(usernameInput), password: passwordInput });
-    if (error) alert('ログインエラー'); else checkUser();
+    if (!usernameInput || !passwordInput) return setErrorMessage('ユーザー名とパスワードを入力してください');
+    
+    const { error } = await supabase.auth.signInWithPassword({ 
+      email: getDummyEmail(usernameInput), 
+      password: passwordInput 
+    });
+    if (error) setErrorMessage('ログインに失敗しました。ユーザー名かパスワードが間違っています。'); 
+    else checkUser();
   };
 
   const handleLogout = async () => { await supabase.auth.signOut(); setUser(null); };
@@ -76,11 +95,8 @@ function App() {
       <header style={{ padding: '10px', borderBottom: '1px solid #ccc', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff' }}>
         <div style={{ fontSize: '24px', fontWeight: 'bold' }}></div>
         {user ? (
-          // 👇 display: 'flex', alignItems: 'center', gap: '8px' を追加して綺麗に横並びに！
           <div style={{ fontSize: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span>({user.user_metadata?.display_name}) でログイン中</span>
-            
-            {/* 👇 onClickの中に window.confirm の確認処理を追加！ */}
             <button 
               onClick={() => setShowLogoutConfirm(true)} 
               style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#555', display: 'flex', alignItems: 'center', padding: 0 }}
@@ -95,11 +111,9 @@ function App() {
         )}
       </header>
 
-      {/* 📱 メインコンテンツ（タブの中身をコンポーネントで呼び出すだけ！） */}
-      {/* 📱 メインコンテンツ（タブの中身をコンポーネントで呼び出すだけ！） */}
+      {/* 📱 メインコンテンツ */}
       <main style={{ flex: 1, overflowY: 'auto', padding: '10px', backgroundColor: '#f9f9f9' }}>
         {!user ? (
-          // 🌟 ここから：お洒落になったログイン画面
           <div style={{ height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '10px' }}>
             <div style={{ 
               width: '100%', maxWidth: '320px', backgroundColor: '#fff', 
@@ -107,7 +121,6 @@ function App() {
               boxShadow: '0 8px 25px rgba(0,0,0,0.05)', textAlign: 'center' 
             }}>
               
-              {/* カフェ風のアイコンとタイトル */}
               <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="64" height="64">
                   <g>
@@ -130,69 +143,94 @@ function App() {
                       c0.028-16.285,13.218-29.474,29.502-29.502c2.718,0.01,5.33,0.483,7.868,1.24V204.164z" />
                   </g>
                 </svg>
-              </div>              <h3 style={{ margin: '0 0 5px 0', fontSize: '20px', color: '#4a4a4a' }}>Cafe Map</h3>
-              <p style={{ margin: '0 0 25px 0', fontSize: '13px', color: '#888' }}>お気に入りのお店を記録しよう</p>
+              </div>              
+              <h3 style={{ margin: '0 0 5px 0', fontSize: '20px', color: '#4a4a4a' }}>Cafe Map</h3>
+              <p style={{ margin: '0 0 25px 0', fontSize: '13px', color: '#888' }}>
+                {isSignUpMode ? '新しいアカウントを作成' : 'お気に入りのお店を記録しよう'}
+              </p>
               
               <form style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                {/* 入力フォーム */}
                 <input 
                   type="text" 
                   placeholder="ユーザー名" 
                   value={usernameInput} 
                   onChange={(e) => setUsernameInput(e.target.value)} 
-                  style={{ 
-                    padding: '14px', borderRadius: '10px', border: '1px solid #e0e0e0', 
-                    fontSize: '15px', backgroundColor: '#fafafa', outlineColor: '#8bc34a' 
-                  }}
+                  style={{ padding: '14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '15px', backgroundColor: '#fafafa', outlineColor: '#8bc34a' }}
                 />
                 <input 
                   type="password" 
                   placeholder="パスワード（6文字以上）" 
                   value={passwordInput} 
                   onChange={(e) => setPasswordInput(e.target.value)} 
-                  style={{ 
-                    padding: '14px', borderRadius: '10px', border: '1px solid #e0e0e0', 
-                    fontSize: '15px', backgroundColor: '#fafafa', outlineColor: '#8bc34a' 
-                  }}
+                  style={{ padding: '14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '15px', backgroundColor: '#fafafa', outlineColor: '#8bc34a' }}
                 />
                 
-                {/* ボタンエリア */}
+                {/* 🌟 新規登録モードの時だけ表示されるパスワード確認フィールド */}
+                {isSignUpMode && (
+                  <input 
+                    type="password" 
+                    placeholder="パスワード（確認用）" 
+                    value={passwordConfirmInput} 
+                    onChange={(e) => setPasswordConfirmInput(e.target.value)} 
+                    style={{ padding: '14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '15px', backgroundColor: '#fafafa', outlineColor: '#8bc34a' }}
+                  />
+                )}
+                
+                {/* 🌟 モードによってボタンを出し分ける */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '10px' }}>
-                  <button 
-                    onClick={handleLogin} 
-                    type="button" 
-                    style={{ 
-                      padding: '14px', borderRadius: '10px', border: 'none', 
-                      backgroundColor: '#8bc34a', color: '#fff', fontWeight: 'bold', 
-                      fontSize: '15px', cursor: 'pointer', boxShadow: '0 4px 10px rgba(139, 195, 74, 0.3)' 
-                    }}
-                  >
-                    ログイン
-                  </button>
-                  
-                  <div style={{ fontSize: '12px', color: '#aaa', display: 'flex', alignItems: 'center', gap: '8px', margin: '5px 0' }}>
-                    <div style={{ flex: 1, height: '1px', backgroundColor: '#eee' }}></div>
-                    <span>初めての方はこちら</span>
-                    <div style={{ flex: 1, height: '1px', backgroundColor: '#eee' }}></div>
-                  </div>
+                  {!isSignUpMode ? (
+                    <>
+                      <button 
+                        onClick={handleLogin} 
+                        type="button" 
+                        style={{ padding: '14px', borderRadius: '10px', border: 'none', backgroundColor: '#8bc34a', color: '#fff', fontWeight: 'bold', fontSize: '15px', cursor: 'pointer', boxShadow: '0 4px 10px rgba(139, 195, 74, 0.3)' }}
+                      >
+                        ログイン
+                      </button>
+                      
+                      <div style={{ fontSize: '12px', color: '#aaa', display: 'flex', alignItems: 'center', gap: '8px', margin: '5px 0' }}>
+                        <div style={{ flex: 1, height: '1px', backgroundColor: '#eee' }}></div>
+                        <span>初めての方はこちら</span>
+                        <div style={{ flex: 1, height: '1px', backgroundColor: '#eee' }}></div>
+                      </div>
 
-                  <button 
-                    onClick={handleSignUp} 
-                    type="button" 
-                    style={{ 
-                      padding: '14px', borderRadius: '10px', border: '2px solid #8bc34a', 
-                      backgroundColor: '#fff', color: '#8bc34a', fontWeight: 'bold', 
-                      fontSize: '15px', cursor: 'pointer' 
-                    }}
-                  >
-                    新規登録
-                  </button>
+                      <button 
+                        onClick={() => { setIsSignUpMode(true); setErrorMessage(null); setPasswordConfirmInput(''); }} 
+                        type="button" 
+                        style={{ padding: '14px', borderRadius: '10px', border: '2px solid #8bc34a', backgroundColor: '#fff', color: '#8bc34a', fontWeight: 'bold', fontSize: '15px', cursor: 'pointer' }}
+                      >
+                        新規登録
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button 
+                        onClick={handleSignUp} 
+                        type="button" 
+                        style={{ padding: '14px', borderRadius: '10px', border: 'none', backgroundColor: '#8bc34a', color: '#fff', fontWeight: 'bold', fontSize: '15px', cursor: 'pointer', boxShadow: '0 4px 10px rgba(139, 195, 74, 0.3)' }}
+                      >
+                        登録してはじめる
+                      </button>
+                      
+                      <div style={{ fontSize: '12px', color: '#aaa', display: 'flex', alignItems: 'center', gap: '8px', margin: '5px 0' }}>
+                        <div style={{ flex: 1, height: '1px', backgroundColor: '#eee' }}></div>
+                        <span>すでにアカウントをお持ちの方</span>
+                        <div style={{ flex: 1, height: '1px', backgroundColor: '#eee' }}></div>
+                      </div>
+
+                      <button 
+                        onClick={() => { setIsSignUpMode(false); setErrorMessage(null); }} 
+                        type="button" 
+                        style={{ padding: '14px', borderRadius: '10px', border: '2px solid #ccc', backgroundColor: '#fff', color: '#666', fontWeight: 'bold', fontSize: '15px', cursor: 'pointer' }}
+                      >
+                        ログイン画面に戻る
+                      </button>
+                    </>
+                  )}
                 </div>
               </form>
-
             </div>
           </div>
-          // 🌟 ここまで
         ) : (
           <>
             {activeTab === 'home' && <HomeTab cafes={cafes} user={user} onUpdate={fetchCafes} />}
@@ -202,7 +240,28 @@ function App() {
         )}
       </main>
 
-      {/* 🌟 カスタム：ログアウト確認モーダル */}
+      {/* 🌟 カスタム：エラー表示モーダル（alertの代わり） */}
+      {errorMessage && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
+          <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '16px', width: '100%', maxWidth: '300px', textAlign: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.2)' }}>
+            <div style={{ color: '#ff5252', marginBottom: '10px', display: 'flex', justifyContent: 'center' }}>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width="48" height="48">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <h3 style={{ margin: '0 0 10px 0', fontSize: '18px', color: '#333' }}>エラー</h3>
+            <p style={{ margin: '0 0 20px 0', fontSize: '14px', color: '#666', lineHeight: '1.5' }}>{errorMessage}</p>
+            <button 
+              onClick={() => setErrorMessage(null)} 
+              style={{ width: '100%', padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: '#333', color: '#fff', cursor: 'pointer', fontWeight: 'bold' }}
+            >
+              閉じる
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ログアウト確認モーダル */}
       {showLogoutConfirm && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
           <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '16px', width: '100%', maxWidth: '300px', textAlign: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.2)' }}>
@@ -223,37 +282,21 @@ function App() {
       {/* 📱 フッター */}
       {user && (
         <footer style={{ display: 'flex', justifyContent: 'space-around', padding: '8px 5px', borderTop: '1px solid #ccc', backgroundColor: '#ffffff' }}>
-          
-          {/* 一覧（List）ボタン */}
-          <button 
-            onClick={() => setActiveTab('list')} 
-            style={{ color:'black', fontWeight:'bold', backgroundColor: activeTab === 'list' ? '#d1ffd1' : 'transparent', border: 'none', cursor: 'pointer', padding: '6px 24px', borderRadius: '12px', opacity: activeTab === 'list' ? 1 : 0.6, transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          >
+          <button onClick={() => setActiveTab('list')} style={{ color:'black', fontWeight:'bold', backgroundColor: activeTab === 'list' ? '#d1ffd1' : 'transparent', border: 'none', cursor: 'pointer', padding: '6px 24px', borderRadius: '12px', opacity: activeTab === 'list' ? 1 : 0.6, transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width="24" height="24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
             </svg>
           </button>
-
-          {/* ホーム（Home）ボタン */}
-          <button 
-            onClick={() => setActiveTab('home')} 
-            style={{ backgroundColor: activeTab === 'home' ? '#d1ffd1' : 'transparent', border: 'none', cursor: 'pointer', padding: '6px 24px', borderRadius: '12px', opacity: activeTab === 'home' ? 1 : 0.6, transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          >
+          <button onClick={() => setActiveTab('home')} style={{ backgroundColor: activeTab === 'home' ? '#d1ffd1' : 'transparent', border: 'none', cursor: 'pointer', padding: '6px 24px', borderRadius: '12px', opacity: activeTab === 'home' ? 1 : 0.6, transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width="24" height="24">
               <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
             </svg>
           </button>
-
-          {/* 登録（Add）ボタン */}
-          <button 
-            onClick={() => setActiveTab('add')} 
-            style={{ backgroundColor: activeTab === 'add' ? '#d1ffd1' : 'transparent', border: 'none', cursor: 'pointer', padding: '6px 24px', borderRadius: '12px', opacity: activeTab === 'add' ? 1 : 0.6, transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          >
+          <button onClick={() => setActiveTab('add')} style={{ backgroundColor: activeTab === 'add' ? '#d1ffd1' : 'transparent', border: 'none', cursor: 'pointer', padding: '6px 24px', borderRadius: '12px', opacity: activeTab === 'add' ? 1 : 0.6, transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width="24" height="24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
             </svg>
           </button>
-          
         </footer>
       )}
     </div>
