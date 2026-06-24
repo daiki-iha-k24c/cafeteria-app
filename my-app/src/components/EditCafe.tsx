@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap, CircleMarker } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap, CircleMarker } from 'react-leaflet';
 import { supabase } from '../lib/supabase';
 import type { Cafe } from '../App';
 
@@ -10,7 +10,7 @@ interface EditCafeProps {
     onSuccess: () => void;
 }
 
-export default function EditCafe({ cafe, user, onCancel, onSuccess }: EditCafeProps) {
+export default function EditCafe({ cafe, onCancel, onSuccess }: EditCafeProps) {
     // 📝 初期値として、渡された cafe のデータを入れる
     const [cafeName, setCafeName] = useState(cafe.name);
     

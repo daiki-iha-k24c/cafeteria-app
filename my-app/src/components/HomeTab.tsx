@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { MapContainer, TileLayer, Marker } from 'react-leaflet';
 import type { Cafe } from '../App';
 import CafeDetail from './CafeDetail';
