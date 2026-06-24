@@ -92,23 +92,37 @@ function App() {
     <div className="app-container" style={{ display: 'flex', flexDirection: 'column', height: '100vh', margin: 0 }}>
       
       {/* 📱 ヘッダー */}
-      <header style={{ padding: '10px', borderBottom: '1px solid #ccc', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff' }}>
-        <div style={{ fontSize: '24px', fontWeight: 'bold' }}></div>
-        {user ? (
-          <div style={{ fontSize: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span>({user.user_metadata?.display_name}) でログイン中</span>
+      <header style={{ padding: '10px 15px', borderBottom: '1px solid #ccc', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff' }}>
+        
+        {/* 🌟 左側：更新ボタン */}
+        <div>
+          {user && (
+            <button 
+              onClick={() => window.location.href = window.location.pathname + '?t=' + new Date().getTime()} 
+              style={{ background: '#f8f9fa', border: '1px solid #ddd', padding: '5px 10px', borderRadius: '6px', cursor: 'pointer', fontSize: '11px', color: '#555', fontWeight: 'bold', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}
+            >
+              🔄 最新に更新
+            </button>
+          )}
+        </div>
+
+        {/* 🌟 右側：ユーザー名 ＆ ログアウトボタン */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#444' }}>
+            {user ? `${user.user_metadata?.display_name} でログイン中` : '未ログイン'}
+          </div>
+          
+          {user && (
             <button 
               onClick={() => setShowLogoutConfirm(true)} 
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#555', display: 'flex', alignItems: 'center', padding: 0 }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#666', display: 'flex', alignItems: 'center', padding: 0 }}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width="20" height="20">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width="22" height="22">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
               </svg>
             </button>
-          </div>
-        ) : (
-          <div style={{ fontSize: '12px' }}>未ログイン</div>
-        )}
+          )}
+        </div>
       </header>
 
       {/* 📱 メインコンテンツ */}
