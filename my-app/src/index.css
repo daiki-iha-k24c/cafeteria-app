@@ -64,11 +64,15 @@
 
 body {
   margin: 0;
+  font-family: "Kiwi Maru", serif;
+}
+
+input, button, textarea, select,h1,h2,h3 {
+  font-family: inherit;
 }
 
 h1,
 h2 {
-  font-family: var(--heading);
   font-weight: 500;
   color: var(--text-h);
 }
@@ -97,7 +101,6 @@ p {
 
 code,
 .counter {
-  font-family: var(--mono);
   display: inline-flex;
   border-radius: 4px;
   color: var(--text-h);
