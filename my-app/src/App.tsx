@@ -92,16 +92,16 @@ function App() {
     <div className="app-container" style={{ display: 'flex', flexDirection: 'column', height: '100vh', margin: 0 }}>
       
       {/* 📱 ヘッダー */}
-      <header style={{ padding: '10px 15px', borderBottom: '1px solid #ccc', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff' }}>
+      <header style={{ padding: '20px 15px 10px 15px', borderBottom: '1px solid #ccc', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff' }}>
         
         {/* 🌟 左側：更新ボタン */}
         <div>
           {user && (
             <button 
               onClick={() => window.location.href = window.location.pathname + '?t=' + new Date().getTime()} 
-              style={{ background: '#f8f9fa', border: '1px solid #ddd', padding: '5px 10px', borderRadius: '6px', cursor: 'pointer', fontSize: '11px', color: '#555', fontWeight: 'bold', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}
+              style={{ background: '#fff', border: '2px solid #93c9ff', padding: '5px 10px', borderRadius: '6px', cursor: 'pointer', fontSize: '11px', color: '#555', fontWeight: 'bold', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}
             >
-              🔄 最新に更新
+              🔄 更新
             </button>
           )}
         </div>
@@ -109,7 +109,7 @@ function App() {
         {/* 🌟 右側：ユーザー名 ＆ ログアウトボタン */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#444' }}>
-            {user ? `${user.user_metadata?.display_name} でログイン中` : '未ログイン'}
+            {user ? `ユーザ名：${user.user_metadata?.display_name}` : '未ログイン'}
           </div>
           
           {user && (
@@ -169,14 +169,14 @@ function App() {
                   placeholder="ユーザー名" 
                   value={usernameInput} 
                   onChange={(e) => setUsernameInput(e.target.value)} 
-                  style={{ padding: '14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '15px', backgroundColor: '#fafafa', outlineColor: '#8bc34a' }}
+                  style={{ color: '#333', padding: '14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '15px', backgroundColor: '#fafafa', outlineColor: '#8bc34a' }}
                 />
                 <input 
                   type="password" 
                   placeholder="パスワード（6文字以上）" 
                   value={passwordInput} 
                   onChange={(e) => setPasswordInput(e.target.value)} 
-                  style={{ padding: '14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '15px', backgroundColor: '#fafafa', outlineColor: '#8bc34a' }}
+                  style={{ color: '#333', padding: '14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '15px', backgroundColor: '#fafafa', outlineColor: '#8bc34a' }}
                 />
                 
                 {/* 🌟 新規登録モードの時だけ表示されるパスワード確認フィールド */}
@@ -186,7 +186,7 @@ function App() {
                     placeholder="パスワード（確認用）" 
                     value={passwordConfirmInput} 
                     onChange={(e) => setPasswordConfirmInput(e.target.value)} 
-                    style={{ padding: '14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '15px', backgroundColor: '#fafafa', outlineColor: '#8bc34a' }}
+                    style={{ color: '#333', padding: '14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '15px', backgroundColor: '#fafafa', outlineColor: '#8bc34a' }}
                   />
                 )}
                 
@@ -295,22 +295,29 @@ function App() {
 
       {/* 📱 フッター */}
       {user && (
-        <footer style={{ display: 'flex', justifyContent: 'space-around', padding: '8px 5px', borderTop: '1px solid #ccc', backgroundColor: '#ffffff' }}>
-          <button onClick={() => setActiveTab('list')} style={{ color:'black', fontWeight:'bold', backgroundColor: activeTab === 'list' ? '#d1ffd1' : 'transparent', border: 'none', cursor: 'pointer', padding: '6px 24px', borderRadius: '12px', opacity: activeTab === 'list' ? 1 : 0.6, transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <footer style={{ display: 'flex', justifyContent: 'space-around', padding: '15px 5px', borderTop: '1px solid #ccc', backgroundColor: '#ffffff' }}>
+          
+          {/* 一覧タブ */}
+          <button onClick={() => setActiveTab('list')} style={{ color: '#333', backgroundColor: activeTab === 'list' ? '#d1ffd1' : 'transparent', border: 'none', cursor: 'pointer', padding: '6px 24px', borderRadius: '12px', opacity: activeTab === 'list' ? 1 : 0.6, transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width="24" height="24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
             </svg>
           </button>
-          <button onClick={() => setActiveTab('home')} style={{ backgroundColor: activeTab === 'home' ? '#d1ffd1' : 'transparent', border: 'none', cursor: 'pointer', padding: '6px 24px', borderRadius: '12px', opacity: activeTab === 'home' ? 1 : 0.6, transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          
+          {/* ホームタブ */}
+          <button onClick={() => setActiveTab('home')} style={{ color: '#333', backgroundColor: activeTab === 'home' ? '#d1ffd1' : 'transparent', border: 'none', cursor: 'pointer', padding: '6px 24px', borderRadius: '12px', opacity: activeTab === 'home' ? 1 : 0.6, transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width="24" height="24">
               <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
             </svg>
           </button>
-          <button onClick={() => setActiveTab('add')} style={{ backgroundColor: activeTab === 'add' ? '#d1ffd1' : 'transparent', border: 'none', cursor: 'pointer', padding: '6px 24px', borderRadius: '12px', opacity: activeTab === 'add' ? 1 : 0.6, transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          
+          {/* 追加タブ */}
+          <button onClick={() => setActiveTab('add')} style={{ color: '#333', backgroundColor: activeTab === 'add' ? '#d1ffd1' : 'transparent', border: 'none', cursor: 'pointer', padding: '6px 24px', borderRadius: '12px', opacity: activeTab === 'add' ? 1 : 0.6, transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width="24" height="24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
             </svg>
           </button>
+          
         </footer>
       )}
     </div>

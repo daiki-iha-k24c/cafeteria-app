@@ -64,7 +64,7 @@ export default function HomeTab({ cafes, user, onUpdate }: HomeTabProps) {
 
         <button
           onClick={() => { setFilterOpenNow(!filterOpenNow); setPopupCafe(null); }}
-          style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '15px', fontWeight: 'bold', border: '1px solid #8bc34a', cursor: 'pointer', background: filterOpenNow ? '#8bc34a' : '#fff', color: filterOpenNow ? '#fff' : '#8bc34a' }}
+          style={{ fontSize: '12px', padding: '6px 5px', borderRadius: '10px', fontWeight: 'bold', border: '1px solid #8bc34a', cursor: 'pointer', background: filterOpenNow ? '#8bc34a' : '#fff', color: filterOpenNow ? '#fff' : '#8bc34a' }}
         >
           {filterOpenNow ? '✅ 営業中' : '🕒 営業中'}
         </button>
@@ -72,7 +72,7 @@ export default function HomeTab({ cafes, user, onUpdate }: HomeTabProps) {
         <div style={{ position: 'relative' }}>
           <button
             onClick={() => { setIsCategoryOpen(!isCategoryOpen); setIsUserOpen(false); }}
-            style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '15px', fontWeight: 'bold', border: '1px solid #8bc34a', cursor: 'pointer', background: filterCategories.length > 0 ? '#e8f5e9' : '#fff', color: '#4CAF50', display: 'flex', alignItems: 'center', gap: '5px' }}
+            style={{ fontSize: '12px', padding: '6px 5px', borderRadius: '10px', fontWeight: 'bold', border: '1px solid #8bc34a', cursor: 'pointer', background: filterCategories.length > 0 ? '#e8f5e9' : '#fff', color: '#4CAF50', display: 'flex', alignItems: 'center', gap: '5px' }}
           >
             🏷️ カテゴリ {filterCategories.length > 0 && `(${filterCategories.length})`} ▼
           </button>
@@ -99,7 +99,7 @@ export default function HomeTab({ cafes, user, onUpdate }: HomeTabProps) {
         <div style={{ position: 'relative' }}>
           <button
             onClick={() => { setIsUserOpen(!isUserOpen); setIsCategoryOpen(false); }}
-            style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '15px', fontWeight: 'bold', border: '1px solid #8bc34a', cursor: 'pointer', background: filterUsers.length > 0 ? '#e8f5e9' : '#fff', color: '#4CAF50', display: 'flex', alignItems: 'center', gap: '5px' }}
+            style={{ fontSize: '12px', padding: '6px 5px', borderRadius: '10px', fontWeight: 'bold', border: '1px solid #8bc34a', cursor: 'pointer', background: filterUsers.length > 0 ? '#e8f5e9' : '#fff', color: '#4CAF50', display: 'flex', alignItems: 'center', gap: '5px' }}
           >
             👤 ユーザー {filterUsers.length > 0 && `(${filterUsers.length})`} ▼
           </button>
@@ -123,8 +123,26 @@ export default function HomeTab({ cafes, user, onUpdate }: HomeTabProps) {
         </div>
       </div>
 
-      <div style={{ flex: 1, width: '100%', borderRadius: '8px', overflow: 'hidden', border: '2px solid #ccc', position: 'relative' }} onClick={() => { setIsCategoryOpen(false); setIsUserOpen(false); }}>
-        <MapContainer center={[26.48, 127.95]} zoom={9.3} minZoom={9.3} maxBounds={[[26.05, 127.55], [26.90, 128.35]]} maxBoundsViscosity={1.0} style={{ height: '100%', width: '100%' }}>
+      <div style={{
+        flex: 1,
+        borderRadius: '8px',
+        overflow:'hidden',
+        padding: '5px 15px 5px 15px',
+        position: 'relative',
+        boxSizing: 'border-box'
+      }}
+        onClick={() => {
+          setIsCategoryOpen(false);
+          setIsUserOpen(false);
+        }}
+      >
+        <MapContainer 
+        center={[26.48, 128.95]} 
+        zoom={9.2} minZoom={9.2} 
+        maxBounds={[[26.05, 127.55], 
+        [26.90, 128.35]]} 
+        maxBoundsViscosity={1.0} 
+        style={{ height: '100%', width: '100%',borderRadius: '16px' }}>
           <TileLayer attribution='© OpenStreetMap' url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png" />
 
           {filteredCafes.map((cafe) => {

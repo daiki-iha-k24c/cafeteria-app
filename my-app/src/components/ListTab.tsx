@@ -71,7 +71,7 @@ export default function ListTab({ cafes, user, onUpdate }: ListTabProps) {
         {/* 営業中 */}
         <button
           onClick={() => setFilterOpenNow(!filterOpenNow)}
-          style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '15px', fontWeight: 'bold', border: '1px solid #8bc34a', cursor: 'pointer', background: filterOpenNow ? '#8bc34a' : '#fff', color: filterOpenNow ? '#fff' : '#8bc34a' }}
+          style={{ fontSize: '12px', padding: '6px 5px', borderRadius: '10px', fontWeight: 'bold', border: '1px solid #8bc34a', cursor: 'pointer', background: filterOpenNow ? '#8bc34a' : '#fff', color: filterOpenNow ? '#fff' : '#8bc34a' }}
         >
           {filterOpenNow ? '✅ 営業中' : '🕒 営業中'}
         </button>
@@ -80,7 +80,7 @@ export default function ListTab({ cafes, user, onUpdate }: ListTabProps) {
         <div style={{ position: 'relative' }}>
           <button
             onClick={() => { setIsCategoryOpen(!isCategoryOpen); setIsUserOpen(false); }}
-            style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '15px', fontWeight: 'bold', border: '1px solid #8bc34a', cursor: 'pointer', background: filterCategories.length > 0 ? '#e8f5e9' : '#fff', color: '#4CAF50', display: 'flex', alignItems: 'center', gap: '5px' }}
+            style={{ fontSize: '12px', padding: '6px 5px', borderRadius: '10px', fontWeight: 'bold', border: '1px solid #8bc34a', cursor: 'pointer', background: filterCategories.length > 0 ? '#e8f5e9' : '#fff', color: '#4CAF50', display: 'flex', alignItems: 'center', gap: '5px' }}
           >
             🏷️ カテゴリ {filterCategories.length > 0 && `(${filterCategories.length})`} ▼
           </button>
@@ -105,7 +105,7 @@ export default function ListTab({ cafes, user, onUpdate }: ListTabProps) {
         <div style={{ position: 'relative' }}>
           <button
             onClick={() => { setIsUserOpen(!isUserOpen); setIsCategoryOpen(false); }}
-            style={{ fontSize: '12px', padding: '6px 12px', borderRadius: '15px', fontWeight: 'bold', border: '1px solid #8bc34a', cursor: 'pointer', background: filterUsers.length > 0 ? '#e8f5e9' : '#fff', color: '#4CAF50', display: 'flex', alignItems: 'center', gap: '5px' }}
+            style={{ fontSize: '12px', padding: '6px 5px', borderRadius: '10px', fontWeight: 'bold', border: '1px solid #8bc34a', cursor: 'pointer', background: filterUsers.length > 0 ? '#e8f5e9' : '#fff', color: '#4CAF50', display: 'flex', alignItems: 'center', gap: '5px' }}
           >
             👤 ユーザー {filterUsers.length > 0 && `(${filterUsers.length})`} ▼
           </button>
@@ -143,7 +143,7 @@ export default function ListTab({ cafes, user, onUpdate }: ListTabProps) {
 
           return (
             <div key={cafe.id} style={{ border: '1px solid #ccc', borderRadius: '8px', padding: '10px 15px', backgroundColor: '#fff', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
-              <h3 style={{ textAlign: 'left', margin: '0 0 5px 0', fontSize: '16px' }}>{cafe.name}</h3>
+              <h3 style={{ color:'black',textAlign: 'left', margin: '0 0 5px 0', fontSize: '16px' }}>{cafe.name}</h3>
 
               <div style={{ display: 'flex', gap: '8px', marginBottom: '7px', flexWrap: 'wrap', alignItems: 'center' }}>
                 {isOpen === true && <span style={{ padding: '0px 8px', backgroundColor: '#e8f5e9', color: '#2e7d32', border: '1px solid #2e7d32', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold' }}>営業中</span>}
