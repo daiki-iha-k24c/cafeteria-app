@@ -179,7 +179,7 @@ export default function AddTab({ user, cafes, onSuccess }: AddTabProps) {
     };
 
     return (
-        <div style={{ padding: '10px 15px', display: 'flex', flexDirection: 'column', gap: '15px', paddingBottom: '15px' }}>
+        <div style={{ color:'black', padding: '10px 15px', display: 'flex', flexDirection: 'column', gap: '15px', paddingBottom: '15px' }}>
             <h3 style={{ margin: '0 0 5px 0', fontSize: '20px', fontWeight: 'bold' }}>お店情報の登録</h3>
 
             {/* 🌟 アイデア3：上部への常時メッセージ表示 */}
