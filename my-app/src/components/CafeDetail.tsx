@@ -114,7 +114,7 @@ export default function CafeDetail({ cafe, user, onBack, onUpdate }: CafeDetailP
         </button>
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: '15px', display: 'flex', flexDirection: 'column', gap: '20px', paddingBottom: '30px' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '15px', display: 'flex', flexDirection: 'column', gap: '20px', paddingBottom: '30px',color:'black' }}>
         
         <div>
           <h2 style={{ textAlign: 'left', margin: '0 0 10px 0', fontSize: '20px' }}>{cafe.name}</h2>
@@ -142,7 +142,7 @@ export default function CafeDetail({ cafe, user, onBack, onUpdate }: CafeDetailP
         )}
 
         {cafe.latitude && cafe.longitude && (
-          <div style={{ backgroundColor: '#f4fff9', padding: '10px', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '13px' }}>
+          <div style={{ backgroundColor: '#f4fff9', padding: '10px', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '13px',color:'black' }}>
             <div style={{ display: 'flex' }}><span style={{ width: '100px', padding: '0px 0px 0px 8px', fontWeight: 'bold', color: '#555' }}>住所</span><span style={{ textAlign: 'left', padding: '0px 0px 0px 12px' }}>{address}</span></div>
             <div style={{ height: '150px', width: '100%', borderRadius: '8px', overflow: 'hidden', border: '1px solid #ccc', marginBottom: '15px' }}>
               <MapContainer center={[cafe.latitude, cafe.longitude]} zoom={13} zoomControl={false} dragging={false} style={{ height: '100%', width: '100%' }}>
