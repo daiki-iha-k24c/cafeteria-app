@@ -64,17 +64,26 @@ export default function HomeTab({ cafes, user, onUpdate }: HomeTabProps) {
 
         <button
           onClick={() => { setFilterOpenNow(!filterOpenNow); setPopupCafe(null); }}
-          style={{ fontSize: '12px', padding: '6px 5px', borderRadius: '10px', fontWeight: 'bold', border: '1px solid #8bc34a', cursor: 'pointer', background: filterOpenNow ? '#8bc34a' : '#fff', color: filterOpenNow ? '#fff' : '#8bc34a' }}
+          style={{ fontSize: '13px', padding: '6px 5px', borderRadius: '0px', fontWeight: 'bold', border:'none', borderBottom: '2px solid #8bc34a', cursor: 'pointer', background: filterOpenNow ? '#8bc34a' : 'none', color: filterOpenNow ? '#fff' : '#4CAF50', display: 'flex', alignItems: 'center', gap: '4px' }}
         >
-          {filterOpenNow ? '✅ 営業中' : '🕒 営業中'}
+          {/* 🌟 営業中の時計アイコン */}
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: '14px', height: '14px' }}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+          </svg>
+          {filterOpenNow ? '営業中' : '営業中'}
         </button>
 
         <div style={{ position: 'relative' }}>
           <button
             onClick={() => { setIsCategoryOpen(!isCategoryOpen); setIsUserOpen(false); }}
-            style={{ fontSize: '12px', padding: '6px 5px', borderRadius: '10px', fontWeight: 'bold', border: '1px solid #8bc34a', cursor: 'pointer', background: filterCategories.length > 0 ? '#e8f5e9' : '#fff', color: '#4CAF50', display: 'flex', alignItems: 'center', gap: '5px' }}
+            style={{ fontSize: '12px', padding: '6px 5px', borderRadius: '0px', fontWeight: 'bold', border:'none', borderBottom: '2px solid #8bc34a', cursor: 'pointer', background: filterCategories.length > 0 ? '#e8f5e9' : 'none', color: '#4CAF50', display: 'flex', alignItems: 'center', gap: '5px' }}
           >
-            🏷️ カテゴリ {filterCategories.length > 0 && `(${filterCategories.length})`} ▼
+            {/* 🌟 カテゴリアイコン */}
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: '14px', height: '14px' }}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6Z" />
+            </svg>
+            カテゴリ {filterCategories.length > 0 && `(${filterCategories.length})`} ▼
           </button>
           {isCategoryOpen && (
             <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: '5px', backgroundColor: '#fff', border: '1px solid #ccc', borderRadius: '8px', padding: '10px', zIndex: 1000, width: '200px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)', maxHeight: '200px', overflowY: 'auto' }}>
@@ -99,25 +108,30 @@ export default function HomeTab({ cafes, user, onUpdate }: HomeTabProps) {
         <div style={{ position: 'relative' }}>
           <button
             onClick={() => { setIsUserOpen(!isUserOpen); setIsCategoryOpen(false); }}
-            style={{ fontSize: '12px', padding: '6px 5px', borderRadius: '10px', fontWeight: 'bold', border: '1px solid #8bc34a', cursor: 'pointer', background: filterUsers.length > 0 ? '#e8f5e9' : '#fff', color: '#4CAF50', display: 'flex', alignItems: 'center', gap: '5px' }}
+            style={{ fontSize: '12px', padding: '6px 5px', borderRadius: '0px', fontWeight: 'bold', border:'none', borderBottom: '2px solid #8bc34a',  cursor: 'pointer', background: filterUsers.length > 0 ? '#e8f5e9' : 'none', color: '#4CAF50', display: 'flex', alignItems: 'center', gap: '5px' }}
           >
-            👤 ユーザー {filterUsers.length > 0 && `(${filterUsers.length})`} ▼
+            {/* 🌟 ユーザーアイコン */}
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: '14px', height: '14px' }}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+            </svg>
+            ユーザー {filterUsers.length > 0 && `(${filterUsers.length})`} ▼
           </button>
           {isUserOpen && (
-            <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '5px', backgroundColor: '#fff', border: '1px solid #ccc', borderRadius: '8px', padding: '10px', zIndex: 1000, width: '200px', maxWidth: '80vw', boxShadow: '0 4px 10px rgba(0,0,0,0.1)', maxHeight: '200px', overflowY: 'auto' }}>              {allUsers.map(u => (
-              <label key={u} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 5px', cursor: 'pointer', borderBottom: '1px solid #f0f0f0' }}>
-                <input
-                  type="checkbox"
-                  checked={filterUsers.includes(u)}
-                  onChange={() => {
-                    setFilterUsers(prev => prev.includes(u) ? prev.filter(user => user !== u) : [...prev, u]);
-                    setPopupCafe(null);
-                  }}
-                  style={{ width: '16px', height: '16px', accentColor: '#8bc34a' }}
-                />
-                <span style={{ fontSize: '14px', color: '#333' }}>{u}</span>
-              </label>
-            ))}
+            <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '5px', backgroundColor: '#fff', border: '1px solid #ccc', borderRadius: '8px', padding: '10px', zIndex: 1000, width: '200px', maxWidth: '80vw', boxShadow: '0 4px 10px rgba(0,0,0,0.1)', maxHeight: '200px', overflowY: 'auto' }}>
+              {allUsers.map(u => (
+                <label key={u} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 5px', cursor: 'pointer', borderBottom: '1px solid #f0f0f0' }}>
+                  <input
+                    type="checkbox"
+                    checked={filterUsers.includes(u)}
+                    onChange={() => {
+                      setFilterUsers(prev => prev.includes(u) ? prev.filter(user => user !== u) : [...prev, u]);
+                      setPopupCafe(null);
+                    }}
+                    style={{ width: '16px', height: '16px', accentColor: '#8bc34a' }}
+                  />
+                  <span style={{ fontSize: '14px', color: '#333' }}>{u}</span>
+                </label>
+              ))}
             </div>
           )}
         </div>
@@ -127,7 +141,7 @@ export default function HomeTab({ cafes, user, onUpdate }: HomeTabProps) {
         flex: 1,
         borderRadius: '8px',
         overflow:'hidden',
-        padding: '5px 15px 5px 15px',
+        padding: '15px 15px 15px 15px',
         position: 'relative',
         boxSizing: 'border-box'
       }}

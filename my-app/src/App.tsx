@@ -295,7 +295,7 @@ function App() {
 
       {/* 📱 フッター */}
       {user && (
-        <footer style={{ display: 'flex', justifyContent: 'space-around', padding: '15px 5px', borderTop: '1px solid #ccc', backgroundColor: '#ffffff' }}>
+        <footer style={{ display: 'flex', justifyContent: 'space-around', padding: '10px 5px 23px 5px', borderTop: '1px solid #ccc', backgroundColor: '#ffffff' }}>
           
           {/* 一覧タブ */}
           <button onClick={() => setActiveTab('list')} style={{ color: '#333', backgroundColor: activeTab === 'list' ? '#d1ffd1' : 'transparent', border: 'none', cursor: 'pointer', padding: '6px 24px', borderRadius: '12px', opacity: activeTab === 'list' ? 1 : 0.6, transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
