@@ -67,14 +67,6 @@ export default function CafeDetail({ cafe, user, onBack, onUpdate }: CafeDetailP
   };
   const images = getImages(cafe.image_url);
 
-  // 🚨 修正：7{cafe.latitude} を ${cafe.latitude} に直し、公式の経路案内URLに変更しました
-  const handleOpenGoogleMap = () => {
-    if (cafe.latitude && cafe.longitude) {
-      const url = `https://www.google.com/maps/dir/?api=1&destination=${cafe.latitude},${cafe.longitude}`;
-      window.open(url, '_blank');
-    }
-  };
-
   // 削除ボタンが押された時の実際の処理
   const handleDelete = async () => {
     try {
