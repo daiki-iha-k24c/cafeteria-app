@@ -32,12 +32,14 @@ export default function CafeDetail({ cafe, user, onBack, onUpdate }: CafeDetailP
               .replace(/日本/g, '').replace(/〒?\d{3}-\d{4}/g, '').trim();
             setAddress(cleanAddress);
           } else {
-            setAddress('住所が見つかりませんでした');
+            setAddress('住所を自動取得できませんでした');
           }
         })
-        .catch(() => setAddress('住所の取得に失敗しました'));
+        .catch(() => {
+          setAddress('住所取得エラー');
+        });
     } else {
-      setAddress('位置情報がありません');
+      setAddress('位置情報が登録されていません');
     }
   }, [cafe]);
 
@@ -56,20 +58,40 @@ export default function CafeDetail({ cafe, user, onBack, onUpdate }: CafeDetailP
   };
 
   const isOpen = checkIsOpen(cafe);
-  const images = cafe.image_url ? cafe.image_url.split(',') : [];
   const tags = cafe.tag ? cafe.tag.split(', ') : [];
 
-  // 🗑️ 実際の削除処理（ポップアップの「削除する」を押した時に動く）
-  const executeDelete = async () => {
-    setShowDeleteConfirm(false); // まずポップアップを閉じる
-    
-    const { error } = await supabase.from('cafes').delete().eq('id', cafe.id);
-    if (error) {
-      alert('削除に失敗しました: ' + error.message);
-    } else {
-      // 成功時はスムーズに一覧画面に戻る
-      onUpdate(); 
-      onBack();   
+  // 🚨 修正：重複していた const images の定義を1つにまとめました
+  const getImages = (urlStr: string | null): string[] => {
+    if (!urlStr) return [];
+    return urlStr.split(',').map(url => url.trim()).filter(url => url.length > 0);
+  };
+  const images = getImages(cafe.image_url);
+
+  // 🚨 修正：7{cafe.latitude} を ${cafe.latitude} に直し、公式の経路案内URLに変更しました
+  const handleOpenGoogleMap = () => {
+    if (cafe.latitude && cafe.longitude) {
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${cafe.latitude},${cafe.longitude}`;
+      window.open(url, '_blank');
+    }
+  };
+
+  // 削除ボタンが押された時の実際の処理
+  const handleDelete = async () => {
+    try {
+      const { error } = await supabase
+        .from('cafes')
+        .delete()
+        .eq('id', cafe.id);
+
+      if (error) throw error;
+
+      alert('お店を削除しました。');
+      setShowDeleteConfirm(false); 
+      onUpdate?.();                  
+      onBack?.();
+    } catch (error) {
+      console.error('削除エラー:', error);
+      alert('削除に失敗しました。');
     }
   };
 
@@ -81,11 +103,10 @@ export default function CafeDetail({ cafe, user, onBack, onUpdate }: CafeDetailP
       <EditCafe 
         cafe={cafe} 
         user={user} 
-        onCancel={() => setIsEditing(false)} // キャンセル時は詳細に戻る
+        onCancel={() => setIsEditing(false)} 
         onSuccess={() => {
-          setIsEditing(false); // 編集完了で詳細に戻る
-          onUpdate(); // 最新データを引っ張ってくる
-          onBack(); // （必要に応じて一覧まで戻すことも可能）
+          setIsEditing(false);
+          onUpdate();
         }} 
       />
     );
@@ -103,7 +124,6 @@ export default function CafeDetail({ cafe, user, onBack, onUpdate }: CafeDetailP
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '15px', display: 'flex', flexDirection: 'column', gap: '20px', paddingBottom: '30px' }}>
         
-        {/* ... (店舗情報や写真、マップの表示部分はそのままです) ... */}
         <div>
           <h2 style={{ textAlign: 'left', margin: '0 0 10px 0', fontSize: '20px' }}>{cafe.name}</h2>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -138,14 +158,15 @@ export default function CafeDetail({ cafe, user, onBack, onUpdate }: CafeDetailP
                 <Marker position={[cafe.latitude, cafe.longitude]} />
               </MapContainer>
             </div>
-            <a href={`https://www.google.com/maps/dir/?api=1&destination=$${cafe.latitude},${cafe.longitude}`} target="_blank" rel="noopener noreferrer" style={{ display: 'block', border: '5px solid #99ccff', textAlign: 'center', padding: '8px', backgroundColor: '#fff', color: '#4285F4', textDecoration: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '14px', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>Googleマップで経路案内</a>
+            {/* 🚨 修正：14{cafe.latitude} を ${cafe.latitude} に直し、正しい経路案内URLにしました */}
+            <a href={`https://www.google.com/maps/dir/?api=1&destination=${cafe.latitude},${cafe.longitude}`} target="_blank" rel="noopener noreferrer" style={{ display: 'block', border: '5px solid #99ccff', textAlign: 'center', padding: '8px', backgroundColor: '#fff', color: '#4285F4', textDecoration: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '14px', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>Googleマップで経路案内</a>
           </div>
         )}
 
         {/* 自分が投稿したお店の場合のみボタンを表示 */}
         {user && user.id === cafe.user_id && (
           <div style={{ display: 'flex', gap: '10px', marginTop: '10px', paddingTop: '15px', borderTop: '2px dashed #ccc' }}>
-            <button onClick={() => setIsEditing(true)} style={{ flex: 1, padding: '12px', backgroundColor: '#fff', border: '2px solid #1565c0', color: '#1565c0', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>✏️ 編集する</button>            {/* 👇 ここを変更！クリックでポップアップのステートをtrueにする */}
+            <button onClick={() => setIsEditing(true)} style={{ flex: 1, padding: '12px', backgroundColor: '#fff', border: '2px solid #1565c0', color: '#1565c0', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>✏️ 編集する</button>            
             <button onClick={() => setShowDeleteConfirm(true)} style={{ flex: 1, padding: '12px', backgroundColor: '#ffebee', border: '2px solid #c62828', color: '#c62828', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>🗑️ 削除する</button>
           </div>
         )}
@@ -159,7 +180,7 @@ export default function CafeDetail({ cafe, user, onBack, onUpdate }: CafeDetailP
         </div>
       )}
 
-      {/* 🌟 追加：カスタム削除確認モーダル */}
+      {/* 🌟 カスタム削除確認モーダル */}
       {showDeleteConfirm && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 10000, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
           <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '16px', width: '100%', maxWidth: '300px', textAlign: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.2)' }}>
@@ -171,12 +192,10 @@ export default function CafeDetail({ cafe, user, onBack, onUpdate }: CafeDetailP
             </p>
             
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-              {/* キャンセルボタン：モーダルを閉じるだけ */}
               <button onClick={() => setShowDeleteConfirm(false)} style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #ccc', backgroundColor: '#fff', cursor: 'pointer', fontWeight: 'bold', color: '#555' }}>
                 キャンセル
               </button>
-              {/* 削除ボタン：executeDelete関数を呼び出す */}
-              <button onClick={executeDelete} style={{ flex: 1, padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: '#e53935', color: '#fff', cursor: 'pointer', fontWeight: 'bold' }}>
+              <button onClick={handleDelete} style={{ flex: 1, padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: '#e53935', color: '#fff', cursor: 'pointer', fontWeight: 'bold' }}>
                 削除する
               </button>
             </div>
