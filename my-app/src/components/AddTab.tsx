@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap, CircleMarker } from 'react-leaflet';
 import { supabase } from '../lib/supabase';
-import type { Cafe } from '../App'; // 🌟 追加
+import type { Cafe } from '../App';
 
 interface AddTabProps {
     user: any;
-    cafes: Cafe[]; // 🌟 追加：既存のカフェデータを受け取る
+    cafes: Cafe[];
     onSuccess: () => void;
 }
 
 export default function AddTab({ user, cafes, onSuccess }: AddTabProps) {
     const [cafeName, setCafeName] = useState('');
-    // 🌟 アイデア1：重複しているお店の名前の警告メッセージを入れるステート
     const [duplicateWarning, setDuplicateWarning] = useState<string | null>(null);
 
     const CATEGORIES = ['ラーメン', 'パスタ', 'うどん・そば', '丼もの', 'パン', 'ファストフード', 'ピザ', '肉', '魚', '揚げ物', '粉もの', 'スイーツ', 'その他'];
@@ -39,7 +38,10 @@ export default function AddTab({ user, cafes, onSuccess }: AddTabProps) {
     const [searchQuery, setSearchQuery] = useState('');
     const [customAlert, setCustomAlert] = useState<{ text: string, type: 'success' | 'error' | 'warning' } | null>(null);
 
-    // 🌟 アイデア1：店名が入力されるたびに重複チェックを行う
+    // 🌟 追加：送信中（ローディング）状態を管理するステート
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // 店名が入力されるたびに重複チェックを行う
     useEffect(() => {
         if (cafeName.length < 2) {
             setDuplicateWarning(null);
@@ -60,7 +62,6 @@ export default function AddTab({ user, cafes, onSuccess }: AddTabProps) {
             }
         };
 
-        // 入力のたびに検索しまくらないように、入力が止まってから500ミリ秒後に実行
         const timerId = setTimeout(checkDuplicate, 500);
         return () => clearTimeout(timerId);
     }, [cafeName]);
@@ -141,11 +142,16 @@ export default function AddTab({ user, cafes, onSuccess }: AddTabProps) {
     const MapClickHandler = () => { useMapEvents({ click(e) { setSelectedLat(e.latlng.lat); setSelectedLng(e.latlng.lng); } }); return null; };
     const MapUpdater = ({ center }: { center: [number, number] | null }) => { const map = useMap(); useEffect(() => { if (center) map.flyTo(center, 16); }, [center, map]); return null; };
 
+    // 🌟 登録処理（ローディングの追加）
     const handleRegisterCafe = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        // 未入力チェック（ここで弾かれた場合は送信処理にいかない）
         if (!cafeName.trim()) return setCustomAlert({ text: '店名を入力してください', type: 'warning' });
         if (selectedTags.length === 0) return setCustomAlert({ text: 'カテゴリを少なくとも1つ選択してください', type: 'warning' });
         if (!selectedLat || !selectedLng) return setCustomAlert({ text: '地図からお店の場所を選択（ピンを刺す）してください', type: 'warning' });
+
+        setIsSubmitting(true); // 🌟 ローディング開始
 
         try {
             let uploadedUrls: string[] = [];
@@ -171,10 +177,13 @@ export default function AddTab({ user, cafes, onSuccess }: AddTabProps) {
             if (error) throw error;
             setCustomAlert({ text: 'お店の登録が完了しました！', type: 'success' });            
             
+            // フォームリセット
             setCafeName(''); setSelectedTags([]); setOpenTime(''); setCloseTime(''); setRegularHolidays([]);
             setAddressInput(''); setSelectedLat(null); setSelectedLng(null); setImageFiles([]); setPreviewUrls([]); 
         } catch (error) {
             setCustomAlert({ text: '登録に失敗しました', type: 'error' });        
+        } finally {
+            setIsSubmitting(false); // 🌟 成功しても失敗してもローディングを終了する
         }
     };
 
@@ -182,7 +191,6 @@ export default function AddTab({ user, cafes, onSuccess }: AddTabProps) {
         <div style={{ color:'black', padding: '10px 15px', display: 'flex', flexDirection: 'column', gap: '15px', paddingBottom: '15px' }}>
             <h3 style={{ margin: '0 0 5px 0', fontSize: '20px', fontWeight: 'bold' }}>お店情報の登録</h3>
 
-            {/* 🌟 アイデア3：上部への常時メッセージ表示 */}
             <div style={{ backgroundColor: '#fff3e0', padding: '10px', borderRadius: '8px', borderLeft: '4px solid #ff9800', fontSize: '12px', color: '#e65100', lineHeight: '1.4' }}>
                 <strong>💡 お願い</strong><br/>
                 重複登録を防ぐため、お店が既に登録されていないか「店名」や「地図」でご確認ください。
@@ -190,7 +198,7 @@ export default function AddTab({ user, cafes, onSuccess }: AddTabProps) {
 
             <form onSubmit={handleRegisterCafe} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                 
-                {/* 1. 店名（🌟 アイデア1：警告メッセージの表示） */}
+                {/* 1. 店名 */}
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                         <div style={{ width: '80px' }}>
@@ -301,9 +309,24 @@ export default function AddTab({ user, cafes, onSuccess }: AddTabProps) {
                     </div>
                 </div>
 
-                {/* 登録ボタン */}
-                <button type="submit" style={{ marginTop: '10px', padding: '12px', backgroundColor: '#dcedc8', border: '2px solid #8bc34a', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '15px', color: '#33691e', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-                    この内容で登録する
+                {/* 🌟 登録ボタン（送信中は押せなくする） */}
+                <button 
+                    type="submit" 
+                    disabled={isSubmitting} // 🌟 連打防止
+                    style={{ 
+                        marginTop: '10px', 
+                        padding: '12px', 
+                        backgroundColor: isSubmitting ? '#e0e0e0' : '#dcedc8', // 🌟 送信中はグレーにする
+                        border: isSubmitting ? '2px solid #bdbdbd' : '2px solid #8bc34a', 
+                        borderRadius: '6px', 
+                        fontWeight: 'bold', 
+                        cursor: isSubmitting ? 'not-allowed' : 'pointer', // 🌟 カーソルも変更
+                        fontSize: '15px', 
+                        color: isSubmitting ? '#757575' : '#33691e', 
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)' 
+                    }}
+                >
+                    {isSubmitting ? '登録処理中...' : 'この内容で登録する'}
                 </button>
             </form>
 
@@ -335,7 +358,7 @@ export default function AddTab({ user, cafes, onSuccess }: AddTabProps) {
                                     </CircleMarker>
                                 )}
 
-                                {/* 🌟 アイデア2：すでに登録されているお店をグレーの丸で表示 */}
+                                {/* すでに登録されているお店をグレーの丸で表示 */}
                                 {cafes.map(existingCafe => {
                                     if (existingCafe.latitude && existingCafe.longitude) {
                                         return (
@@ -381,6 +404,42 @@ export default function AddTab({ user, cafes, onSuccess }: AddTabProps) {
                             閉じる
                         </button>
                     </div>
+                </div>
+            )}
+
+            {/* 🌟 ローディングモーダル（送信中のみ表示） */}
+            {isSubmitting && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    zIndex: 9999,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexDirection: 'column',
+                    color: '#fff'
+                }}>
+                    <div style={{
+                        border: '4px solid rgba(255, 255, 255, 0.3)',
+                        borderTop: '4px solid #8bc34a',
+                        borderRadius: '50%',
+                        width: '40px',
+                        height: '40px',
+                        animation: 'spin 1s linear infinite',
+                        marginBottom: '10px'
+                    }} />
+                    <span style={{ fontWeight: 'bold', fontSize: '14px' }}>登録処理中...画面を閉じないでください</span>
+                    
+                    <style>{`
+                        @keyframes spin {
+                            0% { transform: rotate(0deg); }
+                            100% { transform: rotate(360deg); }
+                        }
+                    `}</style>
                 </div>
             )}
         </div>
